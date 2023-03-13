@@ -1,0 +1,94 @@
+{
+  "root": true,
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaVersion": 2020,
+    "sourceType": "module",
+    "ecmaFeatures": {
+      "jsx": true
+    }
+  },
+  "settings": {
+    "react": {
+      "version": "detect"
+    }
+  },
+  "env": {
+    "browser": true,
+    "amd": true,
+    "node": true,
+    "jest": true
+  },
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/eslint-recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:react/recommended",
+    "plugin:react-hooks/recommended",
+    "plugin:promise/recommended",
+    "plugin:sonarjs/recommended",
+    "plugin:jsx-a11y/recommended",
+    "prettier"
+  ],
+  "plugins": [
+    "@typescript-eslint",
+    "react",
+    "simple-import-sort",
+    "react-hooks",
+    "promise",
+    "optimize-regex",
+    "sonarjs"
+  ],
+  "rules": {
+    "@typescript-eslint/no-unused-vars": "error",
+    "no-unreachable": "warn",
+    "jsx-a11y/no-noninteractive-element-interactions": "off",
+    "no-console": ["error", { "allow": ["debug", "warn"] }],
+    "sonarjs/no-identical-expressions": "off",
+    "jsx-a11y/click-events-have-key-events": "off",
+    "jsx-a11y/no-autofocus": "off",
+    "jsx-a11y/no-static-element-interactions": "off",
+    "sonarjs/cognitive-complexity": "off",
+    "react/react-in-jsx-scope": "off",
+    "react/prop-types": "off",
+    "react/no-unknown-property": ["error", { "ignore": ["css"] }],
+    "react/display-name": "off",
+    "@typescript-eslint/explicit-module-boundary-types": "off",
+    "@typescript-eslint/explicit-function-return-type": [
+      "off",
+      {
+        "allowExpressions": true,
+        "allowTypedFunctionExpressions": true
+      }
+    ],
+    "@typescript-eslint/ban-ts-comment": "off",
+    "no-nested-template-literals": "off",
+    "sonarjs/no-nested-template-literals": "off",
+    "simple-import-sort/imports": [
+      "error",
+      {
+        "groups": [
+          ["^\\u0000"],
+          ["^react$", "^react-.*|$", "^@?\\w"],
+          ["^(sections|pages|components)(/.*|$)"],
+          ["^(store|hooks|utils|services)(/.*|$)"],
+          ["^(styles|public|assets)(/.*|$)", ".*\\.module\\.scss|$", ".*\\.svg|$"],
+          ["^\\.", "^(types)(/.*|$)"],
+          ["^(data)(/.*|$)"]
+        ]
+      }
+    ],
+    "simple-import-sort/exports": "error",
+    "jsx-a11y/anchor-is-valid": [
+      "error",
+      {
+        "components": ["Link"],
+        "specialLink": ["hrefLeft", "hrefRight"],
+        "aspects": ["invalidHref", "preferButton"]
+      }
+    ]
+  },
+  "globals": {
+    "React": "writable"
+  }
+}
