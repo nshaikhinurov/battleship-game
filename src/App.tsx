@@ -1,136 +1,162 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 /** @jsxImportSource @emotion/react */
 
-import { useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
-import battleshipLogo from './assets/battleshipLogo.png';
-import radar from './assets/radar.png';
-import BattleField from './BattleField';
-import { CellStatus, GameModel } from './Model';
-import { useToggle } from './useToggle';
+import BattleFieldComponent from './components/BattleFieldComponent';
+import { Footer } from './components/Footer';
+import { GameStats } from './components/GameStats';
+import { Header } from './components/Header';
+import { consts } from './consts';
+import { palette } from './consts/palette';
+import { Cell, CellStatus } from './models/Cell';
+import { GameModel, Player, sleep } from './models/GameModel';
+import { logger } from './utils/logger';
+import { useToggle } from './utils/useToggle';
 
 function App() {
-  const [model, setModel] = useState<GameModel>(new GameModel());
-  const [state, setState] = useState(model.state);
-  const { humansBattleField, computersBattleField, currentPlayer } = state;
-  const [radarIsOn, toggleRadar] = useToggle(true);
+  const renderCountRef = useRef(0);
+  const [, forceRerender] = useToggle(false);
+  const [radarIsOn, toggleRadar] = useToggle(false);
+  const [moveNumber, setMoveNumber] = useState(1);
+  const [model, setModel] = useState<GameModel>(() => new GameModel());
+  const { state, history } = model;
+  const { humansBattleField, computersBattleField, currentPlayer, winner } = state;
+
+  renderCountRef.current += 1;
+  logger.log(`App rerendered ${renderCountRef.current} times`, model);
 
   function restart() {
     const model = new GameModel();
     setModel(model);
-    setState(model.state);
+    setMoveNumber(1);
   }
 
-  function handleClick(rank: number, file: number) {
-    // eslint-disable-next-line no-console
-    console.log(`Shoot ${String.fromCharCode(65 + rank)}${file + 1}`);
+  const initNextTurn = useCallback(async () => {
+    await sleep(consts.computerTurnDelayMs);
+    model.togglePlayer();
+    forceRerender();
+  }, [forceRerender, model]);
 
-    if (currentPlayer !== 'human') {
-      return;
-    }
+  const handleClick = useCallback(
+    function (cell: Cell) {
+      if (currentPlayer === Player.COMPUTER || winner) {
+        return;
+      }
 
-    const shotCell = state.computersBattleField.grid[rank][file];
-    if (shotCell === CellStatus.EMPTY) {
-      model.setCellStatus(rank, file, CellStatus.MISSED);
-    }
-    if (shotCell === CellStatus.SHIP) {
-      model.setCellStatus(rank, file, CellStatus.HIT);
-    }
+      logger.log(`Shoot ${cell.id}`);
 
-    setState(model.state);
-  }
+      if (cell.isEmpty() || cell.isTechnicallyMissed()) {
+        model.setMissedShot(cell);
+      }
+
+      if (cell.isShip()) {
+        model.setHitShot(cell);
+      }
+
+      model.history.push({
+        state: model.state.clone(),
+        move: cell.clone(),
+        player: currentPlayer,
+      });
+      setMoveNumber((moveNumber) => moveNumber + 1);
+
+      if (cell.isMissed()) {
+        initNextTurn();
+      }
+    },
+    [currentPlayer, initNextTurn, model, winner]
+  );
+
+  useEffect(
+    function makeComputersShot() {
+      if (winner || currentPlayer === Player.HUMAN) {
+        return;
+      }
+
+      (async () => {
+        // eslint-disable-next-line no-constant-condition
+        while (true) {
+          await sleep(consts.computerTurnDelayMs);
+
+          const shotCell = model.makeComputersShot();
+
+          model.history.push({
+            state: model.state.clone(),
+            move: shotCell.clone(),
+            player: currentPlayer,
+          });
+          setMoveNumber((moveNumber) => moveNumber + 1);
+
+          if (shotCell.isMissed()) {
+            break;
+          }
+        }
+        initNextTurn();
+      })();
+    },
+    [currentPlayer, initNextTurn, model, winner]
+  );
 
   return (
-    <div css={appContainerStyles}>
-      <header css={headerStyles}>
-        <img src={battleshipLogo} alt="Battleship" />
-        <h1>Battleship</h1>
-      </header>
-      {humansBattleField && (
-        <div css={{ display: 'flex' }}>
-          <BattleField radarIsOn={radarIsOn} player="human" grid={humansBattleField.grid} />
-          <BattleField
+    <div css={appContainerWrapperStyles}>
+      <div css={appContainerStyles}>
+        <Header />
+
+        <main css={mainWrapperStyles}>
+          <BattleFieldComponent
+            radarIsOn={radarIsOn}
+            player="human"
+            grid={humansBattleField.grid}
+            isActive={!winner && currentPlayer === Player.COMPUTER}
+          />
+          <GameStats
+            winner={winner}
+            moveNumber={moveNumber}
+            currentPlayer={currentPlayer}
+            radarIsOn={radarIsOn}
+            toggleRadar={toggleRadar}
+            restart={restart}
+            history={history.filter((entry) => entry.move.getStatus() !== CellStatus.TECHNICALLY_MISSED)}
+          />
+          <BattleFieldComponent
             radarIsOn={radarIsOn}
             player="computer"
+            isActive={!winner && currentPlayer === Player.HUMAN}
             grid={computersBattleField.grid}
             handleCellClick={handleClick}
           />
-        </div>
-      )}
-      <div css={buttonsWrapperStyles}>
-        <button css={buttonStyles} type="button" onClick={toggleRadar}>
-          <img src={radar} alt="Radar" />
-          <span>Toggle Radar (cheating)</span>
-        </button>
-        <button css={buttonStyles} type="button" onClick={restart}>
-          <i className="fas fa-times" />
-          Restart
-        </button>
+        </main>
       </div>
+
+      <Footer />
     </div>
   );
 }
 
-export default App;
-
-const appContainerStyles = {
-  width: '100vw',
-  height: '100vh',
-  padding: '1em',
-  backgroundColor: '#eee',
-
-  fontSize: '50px',
-  color: '#333',
+const appContainerWrapperStyles = {
+  maxWidth: '100vw',
+  minHeight: '100vh',
+  color: palette.text,
+  backgroundColor: palette.paper,
 
   display: 'flex',
   flexFlow: 'column',
-  justifyContent: 'flex-start',
   alignItems: 'center',
-  gap: '1em',
 };
 
-const headerStyles = {
+const appContainerStyles = {
+  flex: '1 1 auto',
   display: 'flex',
+  flexFlow: 'column',
   justifyContent: 'center',
   alignItems: 'center',
-  gap: '0.75em',
-
-  '& img': {
-    width: '1.5em',
-    height: '1.5em',
-  },
-
-  '& h1': {
-    textTransform: 'uppercase',
-    fontSize: '1.5em',
-    letterSpacing: '0.5em',
-  },
-} as const;
-
-const buttonsWrapperStyles = {
-  display: 'flex',
-  justifyContent: 'center',
-  alignItems: 'center',
-  gap: '1em',
+  gap: '1rem',
 };
 
-const buttonStyles = {
-  fontSize: '0.5em',
+const mainWrapperStyles = {
   display: 'flex',
-  justifyContent: 'center',
-  alignItems: 'center',
-  gap: '0.5em',
-  padding: '0.5em 1em',
-  backgroundColor: '#1F3C88',
-  color: '#fff',
-  textTransform: 'uppercase',
-  cursor: 'pointer',
-  borderRadius: '4px',
-  border: 'none',
-  '&:hover': {
-    backgroundColor: '#F7B633',
-  },
-  '& img': {
-    width: '1em',
-    height: '1em',
-  },
-} as const;
+  alignItems: 'stretch',
+};
+
+export default App;

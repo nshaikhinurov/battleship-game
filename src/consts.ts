@@ -1,6 +1,5 @@
 export const consts = {
   fieldSize: 10,
-  radarIsOn: false,
-  gameState: {},
   computerTurnDelayMs: 500,
+  cellGap: '0.08rem',
 };
