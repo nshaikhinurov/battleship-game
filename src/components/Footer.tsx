@@ -3,7 +3,7 @@
 export const Footer = () => {
   return (
     <footer css={footerStyles}>
-      Coded with ❤ by <a href="https://github.com/nshaikhinurov">nshaikhinurov</a>
+      Coded with ❤ by <a href="https://github.com/nshaikhinurov/battleship-game">nshaikhinurov</a>
     </footer>
   );
 };
