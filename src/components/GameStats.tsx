@@ -105,8 +105,10 @@ const buttonStyles = {
   cursor: 'pointer',
   borderRadius: '4px',
   border: 'none',
+  transition: 'all 0.2s linear',
   '&:hover': {
     backgroundColor: palette.buttonHover,
+    letterSpacing: '0.03em',
   },
 
   '& img': {

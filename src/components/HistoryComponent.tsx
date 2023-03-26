@@ -1,5 +1,6 @@
 /** @jsxImportSource @emotion/react */
 
+import { useEffect, useRef } from 'react';
 import { FaceSharp, SmartToySharp } from '@mui/icons-material';
 import { consts } from 'src/consts';
 import { palette } from 'src/consts/palette';
@@ -10,9 +11,23 @@ interface HistoryComponentProps {
 }
 
 export const HistoryComponent: React.FC<HistoryComponentProps> = ({ history }) => {
+  const listRef = useRef<HTMLOListElement>(null);
+  useEffect(
+    function scrollLastEntryIntoView() {
+      if (listRef.current) {
+        listRef.current.lastElementChild?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'end',
+          inline: 'nearest',
+        });
+      }
+    },
+    [history.length]
+  );
+
   return (
     <div css={historyStyles}>
-      <ol>
+      <ol ref={listRef}>
         {history.map(({ move, player }, i) => {
           const number = (
             <span css={{ marginRight: '0.5em', textAlign: 'right', fontFamily: 'monospace' }}>{i + 1}.</span>

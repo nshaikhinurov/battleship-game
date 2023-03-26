@@ -55,6 +55,7 @@ const cellStyles = (activityType: 'active' | 'disabled') => {
   const isActive = activityType === 'active';
 
   return {
+    transition: 'font-size 0.25s ease, background-color 0.2s ease',
     backgroundColor: 'lemon',
     display: 'flex',
     justifyContent: 'center',
