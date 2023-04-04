@@ -1,9 +1,5 @@
-/** @jsxImportSource @emotion/react */
-// https://github.com/emotion-js/emotion/issues/2752
-
 import React from 'react';
-import { consts } from 'src/consts';
-import { palette } from 'src/consts/palette';
+import cx from 'classnames';
 
 interface NavigationSquaresProps {
   variant: 'horizontal' | 'vertical';
@@ -17,32 +13,18 @@ export const NavigationSquares: React.FC<NavigationSquaresProps> = ({ variant, i
   const squares = variant === 'vertical' ? letters : digits;
 
   return (
-    <div css={navigationSquares(variant)}>
+    <div className={cx('flex gap-1', variant === 'vertical' ? 'flex-col' : 'flex-row')}>
       {squares.map((char) => (
-        <div key={char} css={square} className={isActive ? 'active' : 'disabled'}>
+        <div
+          key={char}
+          className={cx(
+            { 'text-ship-disabled': !isActive },
+            'flex h-10 w-10 items-center justify-center rounded text-xl font-black'
+          )}
+        >
           {char}
         </div>
       ))}
     </div>
   );
-};
-
-const navigationSquares = (variant: 'horizontal' | 'vertical') =>
-  ({
-    display: 'flex',
-    flexFlow: variant === 'horizontal' ? 'row' : 'column',
-    gap: consts.cellGap,
-  } as const);
-
-const square = {
-  display: 'flex',
-  justifyContent: 'center',
-  alignItems: 'center',
-  width: '1rem',
-  height: '1rem',
-  fontWeight: '900',
-  borderRadius: consts.cellGap,
-  '&.disabled': {
-    color: palette.disabled.ship,
-  },
 };

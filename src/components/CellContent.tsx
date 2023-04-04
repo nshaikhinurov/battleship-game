@@ -1,4 +1,6 @@
 import React from 'react';
+import { FaTimes } from 'react-icons/fa';
+import { GoPrimitiveDot } from 'react-icons/go';
 import { CellStatus } from 'src/models/Cell';
 
 interface CellContentProps {
@@ -13,9 +15,9 @@ export const CellContent: React.FC<CellContentProps> = ({ status }) => {
       return null;
     case CellStatus.HIT:
     case CellStatus.SUNK:
-      return <i className="fas fa-times" />;
+      return <FaTimes className="text-3xl" />;
     case CellStatus.MISSED:
-      return <i className="fas fa-circle" />;
+      return <GoPrimitiveDot className="text-3xl" />;
     default:
       return null;
   }

@@ -1,9 +1,5 @@
-/** @jsxImportSource @emotion/react */
-// https://github.com/emotion-js/emotion/issues/2752
-
 import React from 'react';
-import { consts } from 'src/consts';
-import { palette } from 'src/consts/palette';
+import cx from 'classnames';
 import { Grid } from 'src/models/BattleField';
 import { Cell } from 'src/models/Cell';
 import { Player } from 'src/models/GameModel';
@@ -21,11 +17,11 @@ interface BattleFieldProps {
 
 const BattleFieldComponent: React.FC<BattleFieldProps> = ({ grid, handleCellClick, player, radarIsOn, isActive }) => {
   return (
-    <div css={battleFieldWrapperStyles}>
+    <div className="flex flex-col items-end">
       <NavigationSquares variant="horizontal" isActive={isActive} />
-      <div css={{ display: 'flex' }}>
+      <div className="flex">
         <NavigationSquares variant="vertical" isActive={isActive} />
-        <div css={battleFieldStyles}>
+        <div className="grid-rows-10 grid grid-cols-10 gap-1 overflow-hidden rounded ">
           {grid.map((row) =>
             row.map((cell) => (
               <CellComponent
@@ -40,44 +36,16 @@ const BattleFieldComponent: React.FC<BattleFieldProps> = ({ grid, handleCellClic
           )}
         </div>
       </div>
-      <h3 className={isActive ? 'active' : 'disabled'}>
+      <h3
+        className={cx(
+          'flex h-10 w-full items-center justify-center text-center text-base font-black uppercase tracking-[0.2em]',
+          isActive ? 'text-text' : 'text-ship-disabled'
+        )}
+      >
         {player === Player.HUMAN ? 'Your fleet' : "Opponent's fleet"}
       </h3>
     </div>
   );
-};
-
-const battleFieldWrapperStyles = {
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'flex-end',
-
-  fontSize: '0.5em',
-
-  '& > h3': {
-    fontSize: '0.4rem',
-    fontWeight: '900',
-    width: '100%',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    height: '1rem',
-    textAlign: 'center',
-    textTransform: 'uppercase',
-    letterSpacing: '0.2em',
-    '&.disabled': {
-      color: palette.disabled.ship,
-    },
-  },
-} as const;
-
-const battleFieldStyles = {
-  borderRadius: '4px',
-  overflow: 'hidden',
-  display: 'grid',
-  gridTemplateColumns: 'repeat(10, 1fr)',
-  gridTemplateRows: 'repeat(10, 1fr)',
-  gap: consts.cellGap,
 };
 
 export default BattleFieldComponent;

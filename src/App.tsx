@@ -103,7 +103,7 @@ function App() {
       <div css={appContainerStyles}>
         <Header />
 
-        <main css={mainWrapperStyles}>
+        <main className="flex items-stretch">
           <BattleFieldComponent
             radarIsOn={radarIsOn}
             player="human"
@@ -152,11 +152,6 @@ const appContainerStyles = {
   justifyContent: 'center',
   alignItems: 'center',
   gap: '1rem',
-};
-
-const mainWrapperStyles = {
-  display: 'flex',
-  alignItems: 'stretch',
 };
 
 export default App;

@@ -1,10 +1,7 @@
-/** @jsxImportSource @emotion/react */
-// https://github.com/emotion-js/emotion/issues/2752
-
 import React from 'react';
 import cx from 'classnames';
-import { palette } from 'src/consts/palette';
 import { CellStatus } from 'src/models/Cell';
+import { Player } from 'src/models/GameModel';
 
 import { CellContent } from './CellContent';
 
@@ -16,22 +13,28 @@ interface CellProps {
   radarIsOn: boolean;
 }
 
-function getCellClassName({ status, player, radarIsOn }: CellProps) {
+function getCellClassName({ status, player, radarIsOn, isActive }: CellProps) {
   switch (status) {
     case CellStatus.EMPTY:
-      return 'water';
-    case CellStatus.SHIP:
-      return player === 'human' ? 'ship' : radarIsOn ? 'ship' : 'water';
+      return isActive ? `bg-sky-100` : `bg-slate-100`;
+
+    case CellStatus.SHIP: {
+      if (player === 'human' || radarIsOn) {
+        return isActive ? `text-2xl bg-sky-500` : `text-2xl bg-slate-300`;
+      }
+
+      return isActive ? `text-2xl bg-sky-100` : `text-2xl bg-slate-100`;
+    }
+
     case CellStatus.HIT:
-      return 'hit';
+      return `text-4xl ${isActive ? 'bg-red-600 text-red-50' : 'bg-slate-300 text-slate-50'}`;
+
     case CellStatus.SUNK:
-      return 'sunk';
+      return `text-4xl ${isActive ? 'bg-sky-950 text-sky-50' : 'bg-slate-300 text-slate-50'}`;
+
     case CellStatus.MISSED:
-      return 'missed';
     case CellStatus.TECHNICALLY_MISSED:
-      return 'technically-missed';
-    default:
-      return 'water';
+      return `text-4xl ${isActive ? 'text-sky-300 bg-sky-100' : 'text-slate-300 bg-slate-100'}`;
   }
 }
 
@@ -43,56 +46,18 @@ const CellComponent: React.FC<CellProps> = (props) => {
       onClick={() => {
         [CellStatus.EMPTY, CellStatus.SHIP, CellStatus.TECHNICALLY_MISSED].includes(status) && onClick();
       }}
-      css={cellStyles(isActive ? 'active' : 'disabled')}
-      className={cx(player, getCellClassName(props))}
+      className={cx(
+        'flex h-10 w-10 items-center justify-center rounded-sm transition-[background-color,font-size] duration-200',
+        getCellClassName(props),
+        isActive &&
+          player === Player.COMPUTER &&
+          [CellStatus.EMPTY, CellStatus.SHIP, CellStatus.TECHNICALLY_MISSED].includes(status) &&
+          'text-sky-300 hover:bg-sky-300'
+      )}
     >
       <CellContent status={status} />
     </div>
   );
-};
-
-const cellStyles = (activityType: 'active' | 'disabled') => {
-  const isActive = activityType === 'active';
-
-  return {
-    transition: 'font-size 0.25s ease, background-color 0.2s ease',
-    backgroundColor: 'lemon',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: '2px',
-
-    width: '1rem',
-    height: '1rem',
-
-    color: '#fff',
-    fontSize: '0.5em',
-
-    '&.water': {
-      backgroundColor: palette[activityType].water,
-    },
-    '&.missed, &.technically-missed': {
-      fontSize: '0.4rem',
-      color: palette[activityType].missed,
-      backgroundColor: palette[activityType].water,
-    },
-    '&.ship': {
-      backgroundColor: palette[activityType].ship,
-    },
-    '&.hit': {
-      fontSize: '1.5em',
-      backgroundColor: palette[activityType].hit,
-    },
-    '&.sunk': {
-      fontSize: '1.5em',
-      backgroundColor: palette[activityType].sunk,
-    },
-    ...(isActive && {
-      '&.computer.water:hover, &.computer.ship:hover, &.computer.technically-missed:hover': {
-        backgroundColor: palette.active.missed,
-      },
-    }),
-  };
 };
 
 export default CellComponent;

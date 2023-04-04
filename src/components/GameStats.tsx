@@ -1,13 +1,10 @@
-/** @jsxImportSource @emotion/react */
-
+import { BiRadar } from 'react-icons/bi';
 import { RefreshSharp } from '@mui/icons-material';
-import radar from 'src/assets/radar.png';
-import { consts } from 'src/consts';
-import { palette } from 'src/consts/palette';
 import { History, Player } from 'src/models/GameModel';
 
 import { CurrentPlayerInfo } from './CurrentPlayerInfo';
 import { HistoryComponent } from './HistoryComponent';
+import { RunningBlock } from './RunningBlock';
 
 interface GameStatsProps {
   moveNumber: number;
@@ -29,90 +26,31 @@ export const GameStats: React.FC<GameStatsProps> = ({
   winner,
 }) => {
   return (
-    <div css={gameStatsWrapperStyles}>
-      <div css={gameStatsStyles}>
-        <div className="header">Game Stats</div>
+    <div className="my-10 ml-2 flex w-60 flex-col gap-1">
+      <div className="flex grow flex-col gap-1 overflow-hidden rounded bg-slate-100">
+        <RunningBlock>Game Stats</RunningBlock>
         <CurrentPlayerInfo currentPlayer={currentPlayer} winner={winner} />
         <HistoryComponent history={history} />
-        <div className="header">Move {moveNumber}</div>
+        <RunningBlock>Move {moveNumber}</RunningBlock>
       </div>
 
-      <button css={buttonStyles} type="button" onClick={toggleRadar}>
-        <img src={radar} alt="Radar" />
+      <button
+        className="flex h-10 cursor-pointer items-center justify-center gap-4 rounded border-none bg-button text-base font-bold uppercase text-white transition-all duration-200 ease-linear hover:bg-button-hover hover:tracking-wide"
+        type="button"
+        onClick={toggleRadar}
+      >
+        <BiRadar className="text-2xl" />
         <span>Turn Radar {radarIsOn ? 'Off' : 'On'}</span>
       </button>
 
-      <button css={buttonStyles} type="button" onClick={restart}>
-        <RefreshSharp style={{ fontSize: '1em', transform: 'scale(1.5,1.5)' }} />
+      <button
+        className="flex h-10 cursor-pointer items-center justify-center gap-4 rounded border-none bg-button text-base font-bold uppercase text-white transition-all duration-200 ease-linear hover:bg-button-hover hover:tracking-wide"
+        type="button"
+        onClick={restart}
+      >
+        <RefreshSharp className="scale-125 " />
         <span>Restart Game</span>
       </button>
     </div>
   );
 };
-
-const gameStatsWrapperStyles = {
-  width: '6rem',
-  height: `calc(10rem + 9 * ${consts.cellGap})`,
-  margin: '1rem 0 1rem 0.25rem',
-  display: 'flex',
-  flexFlow: 'column',
-  gap: consts.cellGap,
-} as const;
-
-const gameStatsStyles = {
-  flex: '1 1 0',
-  backgroundColor: 'rgba(0,0,0,0.05)',
-  borderRadius: '4px',
-  overflow: 'hidden',
-
-  display: 'flex',
-  flexFlow: 'column',
-  gap: consts.cellGap,
-
-  '& .header': {
-    height: '1rem',
-    display: 'flex',
-    flexFlow: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    fontSize: '0.5rem',
-    textTransform: 'uppercase',
-    fontWeight: 'bold',
-    color: 'white',
-    backgroundColor: palette.text,
-  },
-
-  '& .content': {
-    flex: '1 1 0',
-    display: 'flex',
-    flexFlow: 'column',
-    alignItems: 'stretch',
-    justifyContent: 'space-between',
-  },
-} as const;
-
-const buttonStyles = {
-  height: '1rem',
-  fontSize: '0.4rem',
-  display: 'flex',
-  justifyContent: 'center',
-  alignItems: 'center',
-  gap: '0.5em',
-  backgroundColor: palette.button,
-  color: '#fff',
-  textTransform: 'uppercase',
-  fontWeight: 'bold',
-  cursor: 'pointer',
-  borderRadius: '4px',
-  border: 'none',
-  transition: 'all 0.2s linear',
-  '&:hover': {
-    backgroundColor: palette.buttonHover,
-    letterSpacing: '0.03em',
-  },
-
-  '& img': {
-    width: '1em',
-    height: '1em',
-  },
-} as const;
